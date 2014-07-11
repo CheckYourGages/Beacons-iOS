@@ -20,6 +20,10 @@
 @property (nonatomic, strong) ESTBeaconRegion *region;
 @property (nonatomic, strong) NSArray *beaconsArray;
 @property (nonatomic, strong) NSArray *responseObject;
+@property (nonatomic, strong) NSString *matcher;
+@property (nonatomic, strong) NSString *image;
+
+
 
 
 @end
@@ -71,7 +75,7 @@
         
         self.responseObject = responseObject;
         
-        NSLog(@"JSON: %@", responseObject[0][@"name"]);
+        //NSLog(@"JSON: %@", responseObject[0][@"name"]);
         
       
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -99,7 +103,7 @@
     self.region = [[ESTBeaconRegion alloc] initWithProximityUUID:ESTIMOTE_PROXIMITY_UUID
                                                       identifier:@"EstimoteSampleRegion"];
     
-    NSLog(@"JSON: %@", self.responseObject[0][@"name"]);
+    NSLog(@"View Did Appear: %@", self.responseObject[0][@"name"]);
 
     
     /*
@@ -180,18 +184,56 @@
         //cell.textLabel.text = [NSString stringWithFormat:@"%@", persons[@"name"];
       //}
       //else {
-          
-           //cell.textLabel.text = [NSString stringWithFormat:@"Major: %@, Minor: %@", self.json[0][@"name"], beacon.minor];
-          
-      //}
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance: %.2f", [beacon.distance floatValue]];
+        //NSLog(@"TableView: %@", self.responseObject[0][@"name"]);
+        
+   
+        
+        for(NSDictionary *item in self.responseObject) {
+            
+            //NSLog(@"Item: %@", item);
+            //NSLog(@"%@",[item objectForKey:@"id"]);
+            //NSLog(@"%@",[item objectForKey:@"name"]);
+            
+            //if ( [item objectForKey:@"major"] == [NSString stringWithFormat:@"%@", beacon.major] ) {
+            
+                if ([[item objectForKey:@"major"] isEqualToString:[NSString stringWithFormat:@"%@", beacon.major]] ) {
+                 NSLog(@"%@",[item objectForKey:@"major"]);
+                 NSLog(@"%@", [NSString stringWithFormat:@"%@", beacon.major]);
+                 
+                self.matcher = [item objectForKey:@"name"];
+                
+                for(NSDictionary *url in [item objectForKey:@"image"]) {
+                    
+                    self.image = [url objectForKey:@"url"];
+                }
+            
+                
+        }
+        
+        
+        
+                    cell.textLabel.text = [NSString stringWithFormat:@"Name: %@", self.matcher];
+                    
+        
+                    cell.detailTextLabel.text = [NSString stringWithFormat:@"Distance: %.2f", [beacon.distance floatValue]];
+            
+                    //cell.textLabel.text = [NSString stringWithFormat:@"MacAddress: %@", beacon.macAddress];
+                    //cell.detailTextLabel.text = [NSString stringWithFormat:@"RSSI: %d", beacon.rssi];
+        
+           NSString *host = @"http://dance-beacons.integrationrequired.com:3000/";
+           host = [host stringByAppendingString:self.image];
+        
+        
+        // NSString MyURL = [host ]self.image
+        
+            cell.imageView.image = [UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:host]]];
+        //self.matcher = @"";
+        
+        }
+            //}
     }
-    else
-    {
-        cell.textLabel.text = [NSString stringWithFormat:@"MacAddress: %@", beacon.macAddress];
-        //cell.detailTextLabel.text = [NSString stringWithFormat:@"RSSI: %d", beacon.rssi];
-    }
-    cell.imageView.image = [UIImage imageNamed:@"beacon"];
+    
+  self.matcher = @"";
     
     return cell;
 }
